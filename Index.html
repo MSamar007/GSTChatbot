@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GST Sales Support Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-container {
+            width: 95%;
+            max-width: 1200px;
+            height: 90vh;
+            display: flex;
+            gap: 15px;
+        }
+
+        .chat-container {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar h3 {
+            color: #4CAF50;
+            font-size: 16px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .gst-portal-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s ease;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        .gst-portal-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .dashboard-btn {
+            background: linear-gradient(135deg, #ff7b7b, #ff6b6b);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .dashboard-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .support-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .support-info h4 {
+            color: #4CAF50;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .support-info p {
+            font-size: 12px;
+            color: #666;
+            margin: 4px 0;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .chat-header h1 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .back-to-dashboard {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .back-to-dashboard:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .bot-message {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .user-message .message-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            min-height: 45px;
+            max-height: 100px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 22px;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            border-color: #4CAF50;
+        }
+
+        .send-button {
+            width: 45px;
+            height: 45px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .send-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 16px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+            max-width: 70%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .error-message {
+            background: #ffebee !important;
+            border: 1px solid #f44336 !important;
+            color: #c62828 !important;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 30px 15px;
+            color: #666;
+        }
+
+        .welcome-message h2 {
+            color: #4CAF50;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .quick-action-btn {
+            padding: 6px 12px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        .quick-action-btn:hover {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .created-by {
+            text-align: center;
+            color: #888;
+            font-size: 11px;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Markdown Styles */
+        .bot-message .message-content h1,
+        .bot-message .message-content h2,
+        .bot-message .message-content h3 {
+            color: #2c3e50;
+            margin: 8px 0;
+        }
+
+        .bot-message .message-content h1 { font-size: 17px; }
+        .bot-message .message-content h2 { font-size: 15px; }
+        .bot-message .message-content h3 { font-size: 14px; }
+
+        .bot-message .message-content ul,
+        .bot-message .message-content ol {
+            margin: 8px 0;
+            padding-left: 18px;
+        }
+
+        .bot-message .message-content li {
+            margin: 4px 0;
+        }
+
+        .bot-message .message-content strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .bot-message .message-content em {
+            color: #7f8c8d;
+        }
+
+        .bot-message .message-content code {
+            background: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .bot-message .message-content blockquote {
+            border-left: 4px solid #4CAF50;
+            padding-left: 12px;
+            margin: 8px 0;
+            font-style: italic;
+            color: #555;
+        }
+
+        .bot-message .message-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 12px;
+        }
+
+        .bot-message .message-content th,
+        .bot-message .message-content td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .bot-message .message-content th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+                height: 95vh;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 200px;
+                order: 2;
+            }
+            
+            .chat-container {
+                order: 1;
+                height: calc(100% - 220px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                width: 98%;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .quick-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .quick-action-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .back-to-dashboard {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <button class="back-to-dashboard" onclick="goToDashboard()">← Dashboard</button>
+                <h1>🤖 GST Sales Support Agent</h1>
+                <p>Your AI-powered assistant for GST, Company Name, Address & Business changes</p>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <h2>Welcome to GST Sales Support!</h2>
+                    <p>I'm here to help you with GST changes, company name updates, address modifications, and more based on our latest SOP guidelines.</p>
+                    
+                    <div class="quick-actions">
+                        <div class="quick-action-btn" onclick="sendQuickQuery('How to remove GST from a seller account?')">GST Removal</div>
+                        <div class="quick-action-btn" onclick="sendQuickQuery('What documents are needed for GST change?')">GST Change</div>
+                        <div class="quick-action-btn" onclick="sendQuickQuery('How to change company name?')">Company Name Change</div>
+                        <div class="quick-action-btn" onclick="sendQuickQuery('Can I change the address?')">Address Change</div>
+                        <div class="quick-action-btn" onclick="sendQuickQuery('How to update nature of business?')">Business Nature Update</div>
+                        <div class="quick-action-btn" onclick="sendQuickQuery('GST Entity Change Process?')">GST Entity Change</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea 
+                        id="chatInput" 
+                        class="chat-input" 
+                        placeholder="Ask me about GST changes, company name updates, address modifications..."
+                        rows="1"
+                    ></textarea>
+                    <button id="sendButton" class="send-button" onclick="sendMessage()">
+                        ➤
+                    </button>
+                </div>
+            </div>
+            
+            <div class="created-by">
+                Created by Samar
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <button class="dashboard-btn" onclick="goToDashboard()">
+                🏠 Back to Dashboard
+            </button>
+            
+            <a href="https://services.gst.gov.in/services/searchtp" target="_blank" class="gst-portal-button">
+                🌐 Open GST Portal
+            </a>
+            
+            <div class="support-info">
+                <h4>📞 Need Help?</h4>
+                <p><strong>Mohd Samar</strong> (85076)<br>
+                📧 Samar.mohd@IM.com</p>
+                <p><strong>Kammugari Arshad</strong> (94478)<br>
+                📧 Kammugari.arshad@IM.com</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Updated SOP Guidelines Data from attachment
+        const sopGuidelines = {
+            gstRemoval: {
+                prerequisites: {
+                    cancelled: {
+                        condition: "GST is Cancelled",
+                        requirements: [
+                            "Cust Type shouldn't be vgFCPplus or qgFCPplus",
+                            "GST can only be removed if it doesn't belong to user"
+                        ]
+                    },
+                    active: {
+                        condition: "GST is Active", 
+                        requirements: [
+                            "Cust Type shouldn't be vgFCPplus or qgFCPplus",
+                            "GST can only be removed if it doesn't belong to user"
+                        ]
+                    },
+                    userUpdated: {
+                        condition: "User Updated GST",
+                        requirements: [
+                            "GST cannot be removed if added by the user",
+                            "GST change can be possible if it comes under the GST Change SOP"
+                        ]
+                    }
+                },
+                note: "Please do not open a ticket to remove GSTs from True Verified Profiles. In such cases, GST can only be updated if the PAN and state are both the same or the Constitution type got changed."
+            },
+            
+            gstChange: {
+                scenarios: {
+                    cancelledGst: {
+                        condition: "Existing GST Cancelled",
+                        documents: "No Docs Required",
+                        prerequisites: "PAN and state should be the same (Starting 12 digits of both GSTs should be the same)"
+                    },
+                    activeGst: {
+                        condition: "Existing GST Active",
+                        documents: "New GST Certificate",
+                        prerequisites: "PAN and state should be the same (Starting 12 digits of both GSTs should be the same)"
+                    },
+                    ownerDeath: {
+                        condition: "Existing Owner's Death",
+                        documents: "Death Certificate, New GST Certificate, Relationship Proof of Family Members",
+                        prerequisites: "State should be the same"
+                    },
+                    constitutionChange: {
+                        condition: "Constitution Change",
+                        documents: "From Proprietorship to Pvt. Ltd., PF, or any other or vice versa, cancel the old GST, and the company name and owner should be the same in both the GSTs",
+                        prerequisites: [
+                            "The company details, such as product line and owner, should be the same in both GSTs",
+                            "Old GST must be cancelled",
+                            "The state should be the same in both GSTs", 
+                            "A letter of consent is required from other owners"
+                        ]
+                    }
+                }
+            },
+            
+            companyNameChange: {
+                rules: {
+                    formatting: "Company names will be in Title Case format. Except for abbreviated words",
+                    msPrefixRule: "The word 'M/S' is not required before company names. No ticket is required to add M/S as per GST",
+                    pvtLtdFormat: "Pvt. Ltd. and Private Limited are the standard formats for ME companies. No ticket will be accepted for a suffix change as per GST",
+                    unitAddition: {
+                        condition: "Addition of a unit/division/brand of XYZ company",
+                        requirement: "Need a registered trademark certificate/brand certificate that proves the brand or unit/division belongs to the same customer",
+                        note: "Temporary trademark certificate. The trademark application won't be considered"
+                    },
+                    tradeName: {
+                        condition: "Adding GST's Additional Trade Name as Company Name",
+                        documents: "No Documents Required",
+                        requirement: "The additional trade name should be mentioned in the GST Govt. Portal"
+                    },
+                    gstBased: {
+                        condition: "Company Name as per GST",
+                        requirement: "Changes are possible only as per existing GST details from the government portal",
+                        documents: "GST Certificate/Amended GST certificate required",
+                        note: "Company Name cannot be changed as per different GST or New GST. If a GST change is required, please check the GST change SOP mentioned above; all details will be updated automatically"
+                    }
+                }
+            },
+            
+            addressChange: {
+                currentSop: {
+                    pincodeChange: {
+                        condition: "Pincode/Address change within the same state",
+                        oldProcess: "Changes are possible by providing any valid document, such as electricity bills, water bills, rent agreements, firm registration papers, trademark certificates, etc.",
+                        newProcess: "Changes are not possible (for all free & paid users)",
+                        note: "The primary address would be as per GST's primary address"
+                    },
+                    stateChange: {
+                        condition: "State Change", 
+                        process: "Changes are not Possible",
+                        solution: "New STS should be created"
+                    },
+                    cityChange: {
+                        condition: "City Name Changes (When Pincode is already as per GST)",
+                        process: "City names are not editable from the GST team's end; they will be auto-mapped through the pincode from the locality master",
+                        note: "For City Corrections in Locality Master, a ticket should be opened only if there is any valid proof of government records other than a single user's GST"
+                    },
+                    alternateAddress: {
+                        condition: "Address change as per the GST Alternate Address",
+                        process: "Changes are possible",
+                        documents: "3-page GST certificate needed"
+                    }
+                }
+            },
+            
+            factsheetChanges: {
+                natureOfBusiness: {
+                    validation: "Validate the information in GST Gov. Portal V/S Seller Catalog",
+                    action: "Open a ticket only if the details are mismatched in the Gov. Portal and Seller Catalog"
+                },
+                annualTurnover: {
+                    validation: "Validate the information in GST Gov. Portal V/S Seller Catalog",
+                    action: "Open a ticket only if the details are mismatched in the Gov. Portal and Seller Catalog"
+                },
+                legalStatus: {
+                    validation: "Validate the information in GST Gov. Portal V/S Seller Catalog",
+                    action: "Open a ticket only if the details are mismatched in the Gov. Portal and Seller Catalog"
+                },
+                gstPartnerName: {
+                    documents: "GST Certificate Containing 3 Pages"
+                },
+                addressLine: {
+                    action: "Updated by TS Team",
+                    contact: "Connect Apporve Manglik",
+                    note: "Not editable at GST Team end. Please mention the required changes clearly while opening the ticket"
+                }
+            },
+
+            gstEntityChange: {
+                title: "GST Entity Change Request Process/Refund Process",
+                steps: [
+                    "First Sales Team need to request to GST team to change the GST.",
+                    "GST team validate the same and open ticket in refund entity bucket for next process.",
+                    "After Opening the ticket Accounts team will update the refund calculation to the team after deduction of running cost (+7 Days).",
+                    "Need to collect consent letter from the client side with sign and stamp.",
+                    "Sales team must have to collect the whole amount which we are refunding before doing any new deal.",
+                    "GST Amount to be collected on refunded value where deal was matured before April '24 and invoices also generated before April'24",
+                    "After JV creation will open ticket for GST change.",
+                    "If recovery not done within 7 working days then service will be Blocked/Download."
+                ],
+                note: "This is a comprehensive process involving multiple teams and requires careful coordination."
+            },
+            
+            support: {
+                contacts: [
+                    {
+                        name: "Mohd Samar",
+                        id: "85076",
+                        email: "Samar.mohd@indiamart.com"
+                    },
+                    {
+                        name: "Kammugari Arshad", 
+                        id: "94478",
+                        email: "Kammugari.arshad@indiamart.com"
+                    }
+                ]
+            },
+
+            invalidTickets: {
+                factsheetAddress: {
+                    action: "Open Ticket in TS bucket",
+                    owner: "Apporv Manglik"
+                },
+                addressLineChange: {
+                    action: "Editable for Free Users",
+                    note: "No Ticket for Free Users"
+                },
+                gstVerification: {
+                    process: "Auto-Verification, 30 min TAT",
+                    note: "No Ticket Required"
+                },
+                companyUrl: {
+                    note: "Not related to GST"
+                },
+                serviceTransfer: {
+                    note: "Not related to GST"
+                },
+                mobileChange: {
+                    bucket: "Mobile/Email Change Bucket",
+                    owner: "VOC Team"
+                },
+                newGst: {
+                    action: "New STS for New GST",
+                    owner: "Lohit/Kartheek"
+                }
+            }
+        };
+
+        // Chat functionality
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // Dashboard navigation
+        function goToDashboard() {
+            if (confirm('Are you sure you want to go back to dashboard?')) {
+                alert('Redirecting to dashboard...');
+                // window.location.href = '/dashboard';
+            }
+        }
+
+        // Auto-resize textarea
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+
+        // Send message on Enter (Shift+Enter for new line)
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function sendQuickQuery(query) {
+            chatInput.value = query;
+            sendMessage();
+        }
+
+        function addMessage(content, isUser = false, isError = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = `message-content ${isError ? 'error-message' : ''}`;
+            
+            if (isUser) {
+                contentDiv.textContent = content;
+            } else {
+                contentDiv.innerHTML = parseMarkdown(content);
+            }
+            
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            
+            // Remove welcome message if exists
+            const welcomeMessage = chatMessages.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.remove();
+            }
+            
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            typingIndicator.style.display = 'block';
+            scrollToBottom();
+        }
+
+        function hideTyping() {
+            typingIndicator.style.display = 'none';
+        }
+
+        function parseMarkdown(text) {
+            // Simple markdown parser
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+                .replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>')
+                .replace(/^\- (.*$)/gm, '<li>$1</li>')
+                .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+                .replace(/^\d+\. (.*$)/gm, '<li>$1</li>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function processQuery(query) {
+            const lowerQuery = query.toLowerCase();
+            
+            // GST Entity Change queries
+            if (lowerQuery.includes('entity change') || (lowerQuery.includes('gst') && lowerQuery.includes('entity'))) {
+                return generateGstEntityChangeResponse();
+            }
+            
+            // GST Removal queries
+            if (lowerQuery.includes('remove') && lowerQuery.includes('gst')) {
+                return generateGstRemovalResponse();
+            }
+            
+            // GST Change queries
+            if ((lowerQuery.includes('change') || lowerQuery.includes('update')) && lowerQuery.includes('gst')) {
+                return generateGstChangeResponse();
+            }
+            
+            // Company Name Change queries
+            if (lowerQuery.includes('company name') || (lowerQuery.includes('name') && lowerQuery.includes('change'))) {
+                return generateCompanyNameChangeResponse();
+            }
+            
+            // Address Change queries
+            if (lowerQuery.includes('address') && (lowerQuery.includes('change') || lowerQuery.includes('update'))) {
+                return generateAddressChangeResponse();
+            }
+            
+            // Nature of Business queries
+            if (lowerQuery.includes('nature of business') || lowerQuery.includes('business nature')) {
+                return generateNatureOfBusinessResponse();
+            }
+            
+            // Turnover queries
+            if (lowerQuery.includes('turnover') || lowerQuery.includes('annual turnover')) {
+                return generateTurnoverResponse();
+            }
+            
+            // Documents queries
+            if (lowerQuery.includes('document') && (lowerQuery.includes('need') || lowerQuery.includes('require'))) {
+                return generateDocumentRequirementsResponse();
+            }
+            
+            // General help
+            if (lowerQuery.includes('help') || lowerQuery.includes('guide') || lowerQuery.includes('how to')) {
+                return generateGeneralHelpResponse();
+            }
+            
+            // Invalid ticket queries
+            if (lowerQuery.includes('invalid') || lowerQuery.includes('wrong ticket')) {
+                return generateInvalidTicketResponse();
+            }
+            
+            return null; // Query not found in SOP
+        }
+
+        function generateGstRemovalResponse() {
+            return `## 🚫 GST Removal Guidelines
+
+### **Prerequisites for GST Removal:**
+
+#### **When GST is Cancelled:**
+- Customer Type shouldn't be **vgFCPplus** or **qgFCPplus**
+- **GST can only be removed if it doesn't belong to user**
+
+#### **When GST is Active:**
+- Customer Type shouldn't be **vgFCPplus** or **qgFCPplus**  
+- **GST can only be removed if it doesn't belong to user**
+
+#### **When User Updated GST:**
+- **GST cannot be removed if added by the user**
+- GST change can be possible if it comes under the GST Change SOP
+
+### ⚠️ **Important Note:**
+**Do not open a ticket to remove GSTs from True Verified Profiles.** In such cases, GST can only be updated if the PAN and state are both the same or the Constitution type got changed.
+
+### 📋 **Validation Checklist:**
+1. Check customer type (should not be vgFCPplus or qgFCPplus)
+2. Verify if profile is True Verified
+3. Confirm GST ownership (user vs system)
+4. If True Verified, check if PAN/state are same or constitution changed
+
+### 🎯 **Next Steps:**
+- If conditions are met: Proceed with GST removal
+- If GST belongs to user: Consider GST change instead
+- If True Verified: GST change only with proper conditions
+- If unsure: Contact support team for guidance`;
+        }
+
+        function generateGstEntityChangeResponse() {
+            return `## 🔄 GST Entity Change Request Process/Refund Process
+
+### **Step-by-Step Process:**
+
+1. **Initial Request**
+   - Sales Team need to request to GST team to change the GST
+
+2. **Validation & Ticket Creation**
+   - GST team validate the same and open ticket in refund entity bucket for next process
+
+3. **Refund Calculation**
+   - Accounts team will update the refund calculation to the team after deduction of running cost (+7 Days)
+
+4. **Client Consent**
+   - Need to collect consent letter from the client side with sign and stamp
+
+5. **Amount Collection**
+   - Sales team must have to collect the whole amount which we are refunding before doing any new deal
+
+6. **GST Amount Collection**
+   - GST Amount to be collected on refunded value where deal was matured before April '24 and invoices also generated before April'24
+
+7. **JV Creation**
+   - After JV creation will open ticket for GST change
+
+8. **Recovery Timeline**
+   - If recovery not done within 7 working days then service will be Blocked/Download
+
+### 📋 **Key Requirements:**
+- ✅ Consent letter with sign and stamp
+- ✅ Full refund amount collection before new deal
+- ✅ GST amount on pre-April '24 deals
+- ✅ 7-day recovery timeline compliance
+
+### ⚠️ **Important Note:**
+This is a comprehensive process involving multiple teams (Sales, GST, Accounts) and requires careful coordination and timeline management.
+
+### 🎯 **Critical Success Factors:**
+- Proper documentation at each step
+- Timely amount recovery
+- Cross-team coordination
+- Compliance with timeline requirements`;
+        }
+
+        function generateGstChangeResponse() {
+            return `## 🔄 GST Change Guidelines
+
+### **Documents Required & Prerequisites:**
+
+#### **1. Existing GST Cancelled:**
+- **Documents:** No Documents Required
+- **Prerequisites:** PAN and state should be the same (Starting 12 digits of both GSTs should be the same)
+
+#### **2. Existing GST Active:**
+- **Documents:** New GST Certificate
+- **Prerequisites:** PAN and state should be the same (Starting 12 digits of both GSTs should be the same)
+
+#### **3. Existing Owner's Death:**
+- **Documents:** 
+  - Death Certificate
+  - New GST Certificate
+  - Relationship Proof of Family Members
+- **Prerequisites:** State should be the same
+
+#### **4. Constitution Change:**
+- **Scenario:** From Proprietorship to Pvt. Ltd., PF, or any other (or vice versa)
+- **Prerequisites:**
+  1. Company details (product line and owner) should be the same in both GSTs
+  2. **Old GST must be cancelled**
+  3. State should be the same in both GSTs
+  4. Letter of consent required from other owners
+
+### 📋 **Validation Checklist:**
+1. Check existing GST status (active/cancelled)
+2. Verify PAN match (first 12 digits)
+3. Confirm state match
+4. Gather required documents
+5. For constitution change: Ensure old GST is cancelled
+
+### 🎯 **Next Steps:**
+- Collect appropriate documents based on scenario
+- Verify all prerequisites are met
+- Proceed with GST change ticket if all conditions satisfied`;
+        }
+
+        function generateCompanyNameChangeResponse() {
+            return `## 🏢 Company Name Change Guidelines
+
+### **Formatting Rules:**
+- Company names will be in **Title Case format** (except abbreviated words)
+- **M/S prefix:** Not required before company names (No ticket needed to add M/S as per GST)
+- **Pvt. Ltd. format:** Only "Pvt. Ltd." and "Private Limited" are standard formats
+- **No suffix changes** accepted as per GST (No other format will be considered)
+
+### **Change Scenarios:**
+
+#### **1. Adding Unit/Division/Brand:**
+- **Requirement:** Registered trademark certificate/brand certificate
+- **Condition:** Must prove the brand/unit belongs to the same customer
+- **Note:** Temporary trademark certificate acceptable, but trademark application won't be considered
+
+#### **2. Adding GST's Additional Trade Name:**
+- **Documents:** No Documents Required
+- **Requirement:** The additional trade name should be mentioned in the GST Govt. Portal
+
+#### **3. Company Name as per GST:**
+- **Rule:** Changes possible only as per existing GST details from government portal
+- **Documents:** GST Certificate/Amended GST certificate required
+- **Important:** Company Name cannot be changed as per different GST or New GST
+
+### 📋 **Validation Checklist:**
+1. Check current GST portal for trade names
+2. Verify formatting requirements
+3. Collect appropriate certificates if needed
+4. Ensure changes align with GST records
+
+### 🎯 **Next Steps:**
+- For trade name addition: Verify it exists in GST portal
+- For unit/brand addition: Obtain trademark certificate
+- For GST-based changes: Use existing GST details only`;
+        }
+
+        function generateAddressChangeResponse() {
+            return `## 📍 Address Change Guidelines (Updated May 2024)
+
+### **Current SOP Rules:**
+
+#### **1. Pincode/Address Change (Same State):**
+- **Old SOP:** Changes possible with documents (electricity bills, water bills, etc.)
+- **New SOP (May 2024):** **Changes are NOT possible** (for all free & paid users)
+- **Rule:** Primary address will be as per GST's primary address
+
+#### **2. State Change:**
+- **Status:** Changes are **NOT Possible**
+- **Solution:** **New STS should be created**
+
+#### **3. City Name Changes:**
+- **Rule:** City names are not editable from GST team's end
+- **Process:** Auto-mapped through pincode from locality master
+- **Exception:** Ticket can be opened for city corrections in Locality Master only with valid government records (not single user's GST)
+
+#### **4. GST Alternate Address Change:**
+- **Status:** **Changes are possible**
+- **Documents Required:** 3-page GST certificate containing alternate address
+
+#### **5. Address Line on Factsheet:**
+- **Process:** Updated by TS Team
+- **Contact:** Connect **Apporve Manglik**
+- **Note:** Not editable at GST Team end. Please mention required changes clearly while opening the ticket
+
+### ⚠️ **Important Updates:**
+Since **May 2024**, most address changes are **restricted** to maintain consistency with GST records.
+
+### 📋 **Validation Checklist:**
+1. Check if change is within same state
+2. Verify if GST has alternate address
+3. For alternate address: Obtain 3-page GST certificate
+4. For factsheet address: Contact TS Team (Apporve Manglik)
+
+### 🎯 **Next Steps:**
+- **Same state change:** Inform user it's not possible
+- **Alternate address:** Collect 3-page GST certificate
+- **State change:** Guide user to create new STS
+- **Factsheet address:** Direct to TS Team (Apporve Manglik)`;
+        }
+
+        function generateNatureOfBusinessResponse() {
+            return `## 🏭 Nature of Business Update Guidelines
+
+### **Validation Process:**
+1. **Compare GST Gov. Portal** information with **Seller Catalog**
+2. **Open ticket ONLY** if details are **mismatched** between Gov. Portal and Seller Catalog
+
+### **Step-by-Step Process:**
+
+#### **1. Check GST Government Portal:**
+- Access seller's GST details on government portal
+- Note the listed nature of business/business activities
+
+#### **2. Check Seller Catalog:**
+- Review current nature of business in seller's profile
+- Compare with GST portal information
+
+#### **3. Action Required:**
+- **If Match:** No action needed
+- **If Mismatch:** Open ticket for correction
+
+### 📋 **Validation Checklist:**
+1. Access GST Gov. Portal
+2. Retrieve seller's GST information
+3. Compare nature of business fields
+4. Document any discrepancies
+5. Only proceed if mismatch exists
+
+### ⚠️ **Important Note:**
+**Do not open unnecessary tickets.** Only open tickets when there's a clear mismatch between GST portal and seller catalog.
+
+### 🎯 **Next Steps:**
+- Verify both sources first
+- Document specific mismatches
+- Open ticket only if discrepancy exists
+- Include clear details about required changes`;
+        }
+
+        function generateTurnoverResponse() {
+            return `## 💰 Annual Turnover Update Guidelines
+
+### **Validation Process:**
+1. **Compare GST Gov. Portal** information with **Seller Catalog**
+2. **Open ticket ONLY** if details are **mismatched** between sources
+
+### **Step-by-Step Process:**
+
+#### **1. GST Portal Verification:**
+- Check annual turnover listed in GST government portal
+- Note the exact figures and financial year
+
+#### **2. Seller Catalog Review:**
+- Check current turnover information in seller's profile
+- Compare with GST portal data
+
+#### **3. Action Decision:**
+- **If Match:** No ticket required
+- **If Mismatch:** Proceed with ticket
+
+### 📋 **Validation Checklist:**
+1. Access seller's GST details on government portal
+2. Locate annual turnover information
+3. Cross-reference with seller catalog
+4. Document any differences
+5. Ensure mismatch exists before proceeding
+
+### ⚠️ **Important Guidelines:**
+- **Only factual discrepancies** warrant ticket creation
+- Use **exact figures** from GST portal
+- **Avoid unnecessary tickets** - bandwidth is limited
+
+### 🎯 **Next Steps:**
+- Verify turnover in both systems
+- Document specific differences
+- Open ticket only for genuine mismatches
+- Include GST portal reference in ticket`;
+        }
+
+        function generateDocumentRequirementsResponse() {
+            return `## 📄 Document Requirements Summary
+
+### **GST Change Documents:**
+- **Cancelled GST:** No documents required
+- **Active GST:** New GST Certificate
+- **Owner Death:** Death Certificate + New GST Certificate + Relationship Proof
+- **Constitution Change:** Consent letter from other owners + New GST Certificate
+
+### **Company Name Change Documents:**
+- **Unit/Brand Addition:** Registered trademark certificate/brand certificate
+- **Trade Name Addition:** No documents (must exist in GST portal)
+- **GST-based Change:** GST Certificate/Amended GST certificate
+
+### **Address Change Documents:**
+- **Alternate Address:** 3-page GST certificate
+- **Other Address Changes:** Not possible as per new SOP
+- **Factsheet Address:** Contact TS Team (Apporve Manglik)
+
+### **GST Entity Change Documents:**
+- **Consent letter** with sign and stamp
+- **Refund documentation** from accounts team
+- **JV creation** documents
+
+### **Other Requirements:**
+- **GST Partner Name:** GST Certificate (3 pages)
+- **Factsheet Updates:** GST portal verification (no additional documents)
+
+### 📋 **Document Checklist:**
+1. Identify the type of change requested
+2. Check corresponding document requirements
+3. Verify document authenticity
+4. Ensure documents match prerequisites
+5. Collect all required supporting documents
+
+### 🎯 **Pro Tips:**
+- Always verify documents are recent and valid
+- For GST certificates, ensure all 3 pages are included
+- Trademark applications are NOT accepted (only certificates)
+- Death certificates must include relationship proof`;
+        }
+
+        function generateInvalidTicketResponse() {
+            return `## ❌ Invalid GST Tickets - What NOT to Open
+
+### **Requests NOT Related to GST:**
+- **Company URL Changes** - Not GST team responsibility
+- **Service Transfer** - Not GST team responsibility  
+- **Mobile/Email Changes** - Use Mobile/Email Change Bucket (VOC Team)
+
+### **Auto-Handled Processes:**
+- **GST/CIN Verification** - Auto-verification with 30 min TAT (No ticket required)
+
+### **Special Buckets & Owners:**
+- **Factsheet Address Line** - TS bucket (Owner: **Apporv Manglik**)
+- **Address Line Changes** - Editable for free users (No ticket needed)
+- **New GST Requests** - New STS creation (Owner: **Lohit/Kartheek**)
+
+### **Free User Editable Items:**
+- Address line changes
+- Basic profile information
+
+### ⚠️ **Consequences of Wrong Tickets:**
+- Tickets marked as **wrong** if not per SOP
+- **Data removal** from Sales Executive for unnecessary GST removal tickets on True Verified profiles
+- **Bandwidth consumption** affects everyone - as it's using up a lot of unnecessary bandwidth for all
+
+### **Major Invalid Reasons:**
+1. Opening GST removal tickets for True Verified profiles
+2. Requesting changes not covered in SOP
+3. Opening tickets for auto-handled processes
+4. Using wrong buckets for requests
+5. Opening tickets for unnecessary reasons
+
+### 📋 **Before Opening Any Ticket:**
+1. ✅ Check if it's actually GST-related
+2. ✅ Verify it's not auto-handled
+3. ✅ Confirm it follows SOP guidelines
+4. ✅ Use correct bucket/owner
+5. ✅ Ensure it's not editable for free users
+6. ✅ **Please check if a ticket is required or not before opening the GST ticket**
+
+### 🎯 **Critical Warning:**
+**Opening tickets for unnecessary reasons may lead to data removal for the sales executives** - Wrong tickets consume bandwidth and affect the entire team!`;
+        }
+
+        function generateGeneralHelpResponse() {
+            return `## 🆘 GST Sales Support Guide
+
+### **What I Can Help With:**
+- ✅ GST removal prerequisites and validation
+- ✅ GST change scenarios and document requirements  
+- ✅ Company name change rules and formatting
+- ✅ Address change limitations and alternatives (May 2024 updates)
+- ✅ Nature of business and turnover updates
+- ✅ Document requirements for various changes
+- ✅ Invalid ticket identification
+- ✅ GST Entity Change Process/Refund Process
+- ✅ Factsheet and homepage details amendment
+
+### **Common Queries:**
+1. **"Can I remove GST?"** - Check if GST belongs to user and customer type
+2. **"What documents for GST change?"** - Depends on scenario (cancelled/active/death/constitution)
+3. **"How to change company name?"** - Must follow GST portal or trademark requirements
+4. **"Can I update address?"** - Very limited options since May 2024 SOP update
+5. **"Business nature mismatch?"** - Compare GST portal vs seller catalog
+6. **"GST Entity Change?"** - Complex 8-step process involving multiple teams
+7. **"Factsheet updates?"** - Most require GST portal validation
+
+### **Key Validation Steps:**
+1. **Always check** GST government portal first
+2. **Compare** with current seller information
+3. **Verify prerequisites** before opening tickets
+4. **Collect required documents** based on scenario
+5. **Follow SOP guidelines** strictly
+6. **Avoid unnecessary tickets** - check if ticket is required
+
+### 🚨 **Remember:**
+- **No unnecessary tickets** - may lead to data removal
+- **GST removal only if doesn't belong to user**
+- **May 2024 SOP** restricts most address changes
+- **Wrong tickets consume bandwidth** for everyone
+- **Auto-verification** handles GST/CIN verification (30 min TAT)
+
+### 🎯 **Need More Help?**
+Contact our support team for complex scenarios or queries not covered in SOP guidelines!`;
+        }
+
+        function simulateStreamResponse(response) {
+            return new Promise((resolve) => {
+                const words = response.split(' ');
+                let currentResponse = '';
+                let wordIndex = 0;
+
+                function addNextWord() {
+                    if (wordIndex < words.length) {
+                        currentResponse += (wordIndex > 0 ? ' ' : '') + words[wordIndex];
+                        
+                        // Update the last bot message
+                        const messages = chatMessages.querySelectorAll('.bot-message .message-content');
+                        const lastMessage = messages[messages.length - 1];
+                        if (lastMessage) {
+                            lastMessage.innerHTML = parseMarkdown(currentResponse);
+                        }
+                        
+                        wordIndex++;
+                        scrollToBottom();
+                        
+                        // Variable delay for more natural feel
+                        const delay = Math.random() * 40 + 8;
+                        setTimeout(addNextWord, delay);
+                    } else {
+                        resolve();
+                    }
+                }
+                
+                addNextWord();
+            });
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Disable input and button
+            chatInput.disabled = true;
+            sendButton.disabled = true;
+            
+            // Add user message
+            addMessage(message, true);
+            
+            // Clear input
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            
+            // Show typing indicator
+            showTyping();
+            
+            try {
+                // Process query
+                const response = processQuery(message);
+                
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 800));
+                
+                hideTyping();
+                
+                if (response) {
+                    // Add empty bot message container
+                    addMessage('', false);
+                    
+                    // Stream the response
+                    await simulateStreamResponse(response);
+                } else {
+                    // Query not found in SOP
+                    const noAnswerResponse = `## ❓ Query Not Found in SOP Guidelines
+
+I couldn't find information about your query in our current SOP guidelines. 
+
+### 🆘 **Please Contact Support:**
+
+**Mohd Samar** (85076)  
+📧 Samar.mohd@indiamart.com
+
+**Kammugari Arshad** (94478)  
+📧 Kammugari.arshad@indiamart.com
+
+### 💡 **Alternatively, try asking about:**
+- GST removal or changes
+- Company name updates  
+- Address modifications (May 2024 updates)
+- Nature of business changes
+- Document requirements
+- Invalid ticket scenarios
+- GST Entity Change Process
+- Factsheet amendments
+
+Our support team will provide accurate guidance based on the latest SOP guidelines.`;
+                    
+                    addMessage('', false);
+                    await simulateStreamResponse(noAnswerResponse);
+                }
+                
+            } catch (error) {
+                hideTyping();
+                addMessage('❌ Sorry, I encountered an error processing your request. Please contact the support team for assistance.', false, true);
+            }
+            
+            // Re-enable input and button
+            chatInput.disabled = false;
+            sendButton.disabled = false;
+            chatInput.focus();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            chatInput.focus();
+        });
+    </script>
+</body>
+</html>
